@@ -5,7 +5,6 @@ const { exec } = require('child_process');
 const crypto = require('crypto');
 
 const config = require('./config.json');
-const statusCodes = require('./codes.js');
 
 const app = express();
 app.use(bodyParser.json());
