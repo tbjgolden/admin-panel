@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="./style.css" rel="stylesheet">
+  </head>
+  <body>
+    <script>
+      if (!window.localStorage.getItem('token')) window.location.href = './login.html';
+    </script>
+    <a href="#" onclick="window.localStorage.removeItem('token'); window.location.href = './login.html';">log out</a>
+
+    <hr>
+
+    <div id="output">
+      <div class="output"></div>
+      <div class="error"></div>
+    </div>
+
+    <form onsubmit="window.submit(event)" style="padding: 8px 0;">
+      <input type="text" name="command" placeholder="command">
+      <input type="submit" value="enter">
+    </form>
+
+    <script>
+      const output = document.querySelector('#output > .output');
+      const error = document.querySelector('#output > .error');
+
+      window.submit = event => {
+        console.log(event);
+        event.preventDefault();
+        event.stopPropagation();
+        const body = {};
+        event.target.querySelectorAll('[name]').forEach(el => {
+          body[el.name] = el.value;
+          el.value = '';
+        });
+        postAjax(
+          'exec',
+          body,
+          response => {
+            error.innerHTML = '';
+            output.innerHTML += `
+              <div class="command">${body.command || ''}</div>
+              ${response.err
+                ? `<div class="command-stderr">${response.stderr}</div>`
+                : `<div class="command-stdout">${response.stdout}</div>`}
+              <hr>
+            `;
+          },
+          code => {
+            error.innerHTML = 'Error: ' + code + '<pre><code>' + JSON.stringify((window.statusCodes || {})[code], null, 2) + '</code></pre>';
+          }
+        );
+        return false;
+      };
+
+      function postAjax(url, data, success, error) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', url);
+        xhr.onreadystatechange = () => {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              success(JSON.parse(xhr.responseText));
+            } else {
+              error(xhr.status);
+            }
+          }
+        };
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-Token', window.localStorage.getItem('token'));
+        xhr.send(JSON.stringify(data));
+        return xhr;
+      }
+
+    </script>
+    <script src="./codes.js"></script>
+  </body>
+</html>

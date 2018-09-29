@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Login - Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="./style.css" rel="stylesheet">
+  </head>
+  <body>
+    <form action="login" method="POST" onsubmit="window.submit(event)">
+      <input name="username" placeholder="username" type="text">
+      <input name="password" placeholder="password" type="password">
+      <input type="submit" value="login">
+    </form>
+    <script>
+      window.submit = event => {
+        event.preventDefault();
+        event.stopPropagation();
+        const body = {};
+        event.target.querySelectorAll('[name]').forEach(el => {
+          body[el.name] = el.value;
+        });
+        postAjax(
+          'login',
+          body,
+          response => {
+            if (response.token) {
+              window.localStorage.setItem('token', response.token);
+              window.location.href = './index.html';
+            }
+          },
+          code => {
+            if (!event.target.querySelector('.error')) event.target.innerHTML += '<div class="error"></div>';
+            event.target.querySelector('.error').innerHTML = 'Error: ' + code + '<pre><code>' + JSON.stringify((window.statusCodes || {})[code], null, 2) + '</code></pre>';
+          }
+        );
+        return false;
+      };
+
+      function postAjax(url, data, success, error) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', url);
+        xhr.onreadystatechange = () => {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              success(JSON.parse(xhr.responseText));
+            } else {
+              error(xhr.status);
+            }
+          }
+        };
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(data));
+        return xhr;
+      }
+
+    </script>
+    <script src="./codes.js"></script>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+input, button { font: inherit; -webkit-appearance: none; border: 1px solid #000; padding: 4px 8px; }
+
+input, button, form, div { font: inherit; }
+
+body { font: 20px sans-serif; }
+
+.error:not(:empty) { color: red; padding-top: 8px; }
+
+.error code {
+  white-space: pre-wrap;
+}
+
+.output > * {
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.command::before {
+  content: '$ ';
+  color: #777;
+}
+
+.command-stderr {
+  color: #600;
+}
+
+.command-stdout {
+  color: #006;
+}
